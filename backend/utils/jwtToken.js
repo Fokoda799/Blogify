@@ -1,10 +1,13 @@
 import jwt from 'jsonwebtoken';
+import env from 'dotenv';
+
+env.config();
 
 const sendToken = (user, statusCode, res) => {
   const token = user.getJWTToken();
 
   const options = {
-    // expires: new Date(Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+    expires: new Date(Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
     httpOnly: true,
     secure: true,
     sameSite: 'none', // Required for cross-site cookies
@@ -43,7 +46,7 @@ export const removeToken = (res) => {
 
 export function generateVerificationToken(userId) {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: '1d',
+    expiresIn: '7d',
   });
 }
 

@@ -30,5 +30,14 @@ export async function apiFetch(
     ...options,
   };
 
-  return fetch(apiUrl(path), defaultOptions);
+  const res = await fetch(apiUrl(path), defaultOptions);
+  // Check for jwt expired in response body
+  if (res.headers.get("content-type")?.includes("application/json")) {
+    const data = await res.clone().json();
+    if (data?.message === "jwt expired") {
+      localStorage.removeItem("token");
+      throw new Error("Session expired");
+    }
+  }
+  return res;
 }

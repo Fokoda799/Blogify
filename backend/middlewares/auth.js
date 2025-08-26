@@ -6,21 +6,30 @@ import User from "../models/userModel.js";
 const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
   let { token } = req.cookies;
 
-  // Check if token is present
-  if (!token) {
-    token = req.headers.authorization?.split(' ')[1];
+  try {
+    // Check if token is present
     if (!token) {
-      return next(
-        new ErrorHandler("Please Login to access this resources", 401)
-      );
+      token = req.headers.authorization?.split(' ')[1];
+      if (!token) {
+        return next(
+          new ErrorHandler("Please Login to access this resources", 401)
+        );
+      }
     }
-  }
 
-  // Verify the token
-  const decodedData = jwt.verify(token, process.env.JWT_SECRET);
-  // Attach user information to the request object
-  req.user = await User.findById(decodedData.id);
-  next();
+    // Verify the token
+    const decodedData = jwt.verify(token, process.env.JWT_SECRET);
+    // Attach user information to the request object
+    req.user = await User.findById(decodedData.id);
+    next();
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      console.error("JWT Verification Error:", error);
+      return next(new ErrorHandler("Token has expired", 401));
+    }
+    console.error("JWT Verification Error:", error);
+    next(new ErrorHandler("Not authorized to access this resource", 401)); 
+  }
 });
 
 const authorizeRoles = (...roles) => {
