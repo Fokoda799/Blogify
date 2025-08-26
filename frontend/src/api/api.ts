@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE;
+const API_BASE = import.meta.env.VITE_API_BASE + '/api/v1';
 
 /**
  * Helper to build full API URL.
@@ -36,6 +36,7 @@ export async function apiFetch(
     const data = await res.clone().json();
     if (data?.message === "jwt expired") {
       localStorage.removeItem("token");
+      localStorage.removeItem("authUser");
       throw new Error("Session expired");
     }
   }

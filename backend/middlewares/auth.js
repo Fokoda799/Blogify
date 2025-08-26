@@ -25,7 +25,7 @@ const isAuthenticatedUser = catchAsyncError(async (req, res, next) => {
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
       console.error("JWT Verification Error:", error);
-      return next(new ErrorHandler("Token has expired", 401));
+      return next(new ErrorHandler("jwt expired", 401));
     }
     console.error("JWT Verification Error:", error);
     next(new ErrorHandler("Not authorized to access this resource", 401)); 

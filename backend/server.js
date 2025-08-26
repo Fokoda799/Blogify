@@ -10,8 +10,8 @@ import connectDB from './config/db.js';
 import {
   userRouter,
   authRouter,
-  adminRouter,
 } from './routes/userRoutes.js';
+// import adminRouter from './routes/adminRoutes.js';
 import blogRouter from './routes/blogRoutes.js';
 import searchRouter from './routes/searchRoutes.js';
 import notificationRouter from './routes/notificationRoutes.js';
@@ -43,10 +43,20 @@ app.set("io", io);
 // Socket.IO authentication middleware
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
-  if (token && jwt.verify(token, process.env.JWT_SECRET)) {
-    next();
-  } else {
-    next(new Error("Unauthorized"));
+  try {
+    if (token && jwt.verify(token, process.env.JWT_SECRET)) {
+      next();
+    } else {
+      next(new Error("Unauthorized"));
+    }
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      next(new Error("Invalid token"));
+    } else if (error.name === 'TokenExpiredError') {
+      next(new Error("jwt expired"));
+    } else {
+      next(new Error(error.message));
+    }
   }
 });
 
@@ -97,7 +107,7 @@ app.get('/', (req, res) => {
 // Import routes
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/admin', adminRouter);
+// app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/blogs', blogRouter);
 app.use('/api/v1/search', searchRouter);
 app.use('/api/v1/notifications', notificationRouter);

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, X, Send, User, MessageCircle } from 'lucide-react';
 import { useAlert } from 'react-alert';
 
-const VITE_API_BASE = import.meta.env.VITE_API_BASE;
+const VITE_API_BASE = import.meta.env.VITE_API_BASE + '/api/v1';
 interface ContactModalProps {
   setIsOpen: (open: boolean) => void;
 }
